@@ -6,6 +6,10 @@ import org.apache.spark.sql._
 
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.clustering.KMeans
+import org.apache.spark.mllib.clustering.GaussianMixture
+import org.apache.spark.mllib.clustering.BisectingKMeans
+
+import java.io._
 
 
 object BigDataClustering {
@@ -80,7 +84,7 @@ object BigDataClustering {
     for (k <- 2 to 10) {
       val model = new KMeans()
         .setK(k)
-        .setMaxIterations(3)
+        .setMaxIterations(2)
         .setDistanceMeasure(if (is_cosine) "cosine" else "euclidean")
       val clusters = model.run(dataset.rdd)
 
@@ -91,12 +95,34 @@ object BigDataClustering {
     return ret_arr
   }
 
-  def applyGaussian(dataset: Dataset[Vector]): Array[Double] = {
-    return Array[Double]()
-  }
+//  def applyGaussian(dataset: Dataset[Vector]): Unit = {
+//    for (k <- 2 to 10) {
+//      println("Gaussian k = " + k)
+//      val model = new GaussianMixture().setK(k).setMaxIterations(2)
+//      val clusters = model.run(dataset.rdd)
+//
+//      for (i <- 0 until clusters.k) {
+//        println("weight = " + clusters.weights(i) +
+//                ", mu = " + clusters.gaussians(i).mu +
+//                ", sigma = " + clusters.gaussians(i).sigma)
+//      }
+//    }
+//  }
 
-  def applyPIC(dataset: Dataset[Vector]): Array[Double] = {
-    return Array[Double]()
+  def applyBisectingKMeans(dataset: Dataset[Vector]): Array[Double] = {
+    var ret_arr = Array[Double]()
+
+    for (k <- 2 to 10) {
+      val model = new BisectingKMeans()
+        .setK(k)
+        .setMaxIterations(2)
+      val clusters = model.run(dataset.rdd)
+
+      val cost = clusters.computeCost(dataset.rdd)
+      ret_arr = ret_arr :+ cost
+    }
+
+    return ret_arr
   }
 
   implicit val vectorEncoder: Encoder[Vector] = org.apache.spark.sql.Encoders.kryo[Vector]
@@ -109,7 +135,7 @@ object BigDataClustering {
 
     import spark.implicits._
 
-    val inFile = spark.read.format("csv")
+    val in_file = spark.read.format("csv")
       .option("sep", ",")
       .option("inferSchema", "true")
       .option("header", "true")
@@ -117,35 +143,73 @@ object BigDataClustering {
       .na.drop().cache
 
     val shingling_3 = spark.sparkContext
-      .broadcast(inFile.flatMap(row => makeShingles(row.getString(7), 3))
+      .broadcast(in_file.flatMap(row => makeShingles(row.getString(7), 3))
         .distinct().collect())
 
-    val converted_to_sparse_vectors_3 = inFile
+    val converted_to_sparse_vectors_3 = in_file
       .map(row => makeSparseVectors01(row.getString(7), shingling_3.value, 3)).cache
-    val converted_to_sparse_vectors_3_count = inFile
+    val converted_to_sparse_vectors_3_count = in_file
       .map(row => makeSparseVectorsCount(row.getString(7), shingling_3.value, 3)).cache
 
     converted_to_sparse_vectors_3.collect().foreach(i => println(i))
 
-    println("Computing k-means (euclidean) costs for 0/1 shingles:")
+    // K-means
+    println("Computing k-means (euclidean) costs for 0/1 shingles...")
     val k_means_cost = applyKMeans(converted_to_sparse_vectors_3, is_cosine = false)
     println("K-means (euclidean) costs for 0/1 shingles:")
     k_means_cost.foreach(i => println(i))
 
-    println("Computing k-means (euclidean) costs for counted shingles:")
+    println("Computing k-means (euclidean) costs for counted shingles...")
     val count_k_means_cost = applyKMeans(converted_to_sparse_vectors_3_count, is_cosine = false)
     println("K-means (euclidean) costs for counted shingles:")
     count_k_means_cost.foreach(i => println(i))
+
+    // Bisecting K-means
+    println("Computing bisecting k-means (euclidean) costs for counted shingles...")
+    val bkmeans_cost = applyBisectingKMeans(converted_to_sparse_vectors_3)
+    println("Bisecting k-means (euclidean) costs for counted shingles:")
+    bkmeans_cost.foreach(i => println(i))
+
+    println("Computing bisecting k-means (euclidean) costs for counted shingles...")
+    val count_bkmeans_cost = applyBisectingKMeans(converted_to_sparse_vectors_3_count)
+    println("Bisecting k-means (euclidean) costs for counted shingles:")
+    count_bkmeans_cost.foreach(i => println(i))
+
+    // K-means with cosine distance measure
+    println("Computing k-means (cosine) costs for counted shingles...")
+    val k_means_cosine_cost = applyKMeans(converted_to_sparse_vectors_3, is_cosine = true)
+    println("K-means (cosine) costs for counted shingles:")
+    k_means_cosine_cost.foreach(i => println(i))
+
+    println("Computing gaussian (cosine) costs for counted shingles...")
+    val count_k_means_cosine_cost = applyKMeans(converted_to_sparse_vectors_3_count, is_cosine = true)
+    println("K-means (cosine) costs for counted shingles:")
+    count_k_means_cosine_cost.foreach(i => println(i))
+
+//    // Gaussian mixture - java.lang.OutOfMemoryError
+//    println("Computing gaussian (euclidean) parameters for 0/1 shingles:")
+//    applyGaussian(converted_to_sparse_vectors_3)
 //
-//    val gaussian_cost = applyGaussian(converted_to_sparse_vectors_3)
-//    val count_gaussian_cost = applyGaussian(converted_to_sparse_vectors_3_count)
-//
-//    val pic_cost = applyPIC(converted_to_sparse_vectors_3)
-//    val count_pic_cost = applyPIC(converted_to_sparse_vectors_3_count)
-//
-//    val k_means_cosine_cost = applyKMeans(converted_to_sparse_vectors_3, is_cosine = true)
-//    val count_k_means_cosine_cost = applyKMeans(converted_to_sparse_vectors_3_count, is_cosine = true)
-//
+//    println("Computing gaussian (euclidean) parameters for counted shingles:")
+//    applyGaussian(converted_to_sparse_vectors_3_count)
+
+    val file = new File("result.txt")
+
+    val bw = new BufferedWriter(new FileWriter(file))
+    bw.write("K-means euclidean costs (from 2 to 10 clusters):\n")
+    k_means_cost.foreach(i => bw.write(i.toString + "\n"))
+    bw.write("\nK-means euclidean costs (from 2 to 10 clusters) for counted shingles:\n")
+    count_k_means_cost.foreach(i => bw.write(i.toString + "\n"))
+    bw.write("\nBisecting K-means euclidean costs (from 2 to 10 clusters):\n")
+    bkmeans_cost.foreach(i => bw.write(i.toString + "\n"))
+    bw.write("\nBisecting K-means euclidean costs (from 2 to 10 clusters) for counted shingles:\n")
+    count_bkmeans_cost.foreach(i => bw.write(i.toString + "\n"))
+    bw.write("\nK-means cosine costs (from 2 to 10 clusters):\n")
+    k_means_cosine_cost.foreach(i => bw.write(i.toString + "\n"))
+    bw.write("\nK-means cosine costs (from 2 to 10 clusters) for counted shingles:\n")
+    count_k_means_cosine_cost.foreach(i => bw.write(i.toString + "\n"))
+
+    bw.close()
 
     spark.stop()
   }
