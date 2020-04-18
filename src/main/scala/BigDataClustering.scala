@@ -130,7 +130,7 @@ object BigDataClustering {
   def main(args: Array[String]) {
     val spark = SparkSession.builder
       .appName("Simple Application")
-      .config("spark.master", "local") // TODO NEEDED TO CHANGE!
+   //   .config("spark.master", "local") // TODO NEEDED TO CHANGE!
       .getOrCreate()
 
     import spark.implicits._
@@ -139,7 +139,7 @@ object BigDataClustering {
       .option("sep", ",")
       .option("inferSchema", "true")
       .option("header", "true")
-      .load("file:///home/julex/BigDataClustering/proteins_dataset_sample.csv")
+      .load("hdfs://localhost:9123/protein_dataset/proteins_dataset_sample.csv")
       .na.drop().cache
 
     val shingling_3 = spark.sparkContext
