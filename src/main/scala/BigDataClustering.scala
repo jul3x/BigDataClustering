@@ -13,117 +13,6 @@ import java.io._
 
 
 object BigDataClustering {
-  def makeShingles(string: String, shingle_length: Int): List[String] = {
-    var shingles = List[String]()
-    if (string == null || string.isEmpty) {
-      // nothing
-    }
-    else if (string.length() <= shingle_length) {
-      shingles = shingles :+ string
-    }
-    else {
-      for (i <- 0 to (string.length() - shingle_length)) {
-        shingles = string.substring(i, i + shingle_length) +: shingles
-      }
-    }
-
-    return shingles
-  }
-
-  def makeSparseVectorsCount(string: String, shingles: Array[String],
-                             shingle_length: Int): Vector = {
-    val shingles_in = makeShingles(string, shingle_length)
-    var ret_arr = Array[Int]()
-    var ret_arr_2 = Array[Double]()
-
-    var index = 0
-    for (shingle <- shingles) {
-      var exists = false
-      for (input_shingle <- shingles_in) {
-        if (input_shingle == shingle) {
-          if (!exists) {
-            ret_arr = ret_arr :+ index
-            ret_arr_2 = ret_arr_2 :+ 1.0
-            exists = true
-          }
-          else {
-            val new_val = ret_arr_2.last + 1.0
-            ret_arr_2 = ret_arr_2.dropRight(1) :+ (ret_arr_2.last + 1.0)
-          }
-        }
-      }
-
-      index = index + 1
-    }
-
-    return Vectors.sparse(shingles.length, ret_arr, ret_arr_2)
-  }
-
-  def makeSparseVectors01(string: String, shingles: Array[String],
-                          shingle_length: Int): Vector = {
-    val shingles_in = makeShingles(string, shingle_length)
-    var ret_arr = Array[Int]()
-    var ret_arr_2 = Array[Double]()
-
-    var index = 0
-    for (shingle <- shingles) {
-      if (shingles_in contains shingle) {
-        ret_arr = ret_arr :+ index
-        ret_arr_2 = ret_arr_2 :+ 1.0
-      }
-
-      index = index + 1
-    }
-
-    return Vectors.sparse(shingles.length, ret_arr, ret_arr_2)
-  }
-
-  def applyKMeans(dataset: Dataset[Vector], is_cosine: Boolean): Array[Double] = {
-    var ret_arr = Array[Double]()
-
-    for (k <- 2 to 10) {
-      val model = new KMeans()
-        .setK(k)
-        .setMaxIterations(2)
-        .setDistanceMeasure(if (is_cosine) "cosine" else "euclidean")
-      val clusters = model.run(dataset.rdd)
-
-      val cost = clusters.computeCost(dataset.rdd)
-      ret_arr = ret_arr :+ cost
-    }
-
-    return ret_arr
-  }
-
-//  def applyGaussian(dataset: Dataset[Vector]): Unit = {
-//    for (k <- 2 to 10) {
-//      println("Gaussian k = " + k)
-//      val model = new GaussianMixture().setK(k).setMaxIterations(2)
-//      val clusters = model.run(dataset.rdd)
-//
-//      for (i <- 0 until clusters.k) {
-//        println("weight = " + clusters.weights(i) +
-//                ", mu = " + clusters.gaussians(i).mu +
-//                ", sigma = " + clusters.gaussians(i).sigma)
-//      }
-//    }
-//  }
-
-  def applyBisectingKMeans(dataset: Dataset[Vector]): Array[Double] = {
-    var ret_arr = Array[Double]()
-
-    for (k <- 2 to 10) {
-      val model = new BisectingKMeans()
-        .setK(k)
-        .setMaxIterations(2)
-      val clusters = model.run(dataset.rdd)
-
-      val cost = clusters.computeCost(dataset.rdd)
-      ret_arr = ret_arr :+ cost
-    }
-
-    return ret_arr
-  }
 
   implicit val vectorEncoder: Encoder[Vector] = org.apache.spark.sql.Encoders.kryo[Vector]
 
@@ -144,6 +33,117 @@ object BigDataClustering {
       .load("hdfs://" + args(0) + ":9123/user/proteins_dataset/proteins_dataset_sample.csv")
       .na.drop().cache
 
+    def makeShingles(string: String, shingle_length: Int): List[String] = {
+      var shingles = List[String]()
+      if (string == null || string.isEmpty) {
+        // nothing
+      }
+      else if (string.length() <= shingle_length) {
+        shingles = shingles :+ string
+      }
+      else {
+        for (i <- 0 to (string.length() - shingle_length)) {
+          shingles = string.substring(i, i + shingle_length) +: shingles
+        }
+      }
+
+      return shingles
+    }
+
+    def makeSparseVectorsCount(string: String, shingles: Array[String],
+                              shingle_length: Int): Vector = {
+      val shingles_in = makeShingles(string, shingle_length)
+      var ret_arr = Array[Int]()
+      var ret_arr_2 = Array[Double]()
+
+      var index = 0
+      for (shingle <- shingles) {
+        var exists = false
+        for (input_shingle <- shingles_in) {
+          if (input_shingle == shingle) {
+            if (!exists) {
+              ret_arr = ret_arr :+ index
+              ret_arr_2 = ret_arr_2 :+ 1.0
+              exists = true
+            }
+            else {
+              val new_val = ret_arr_2.last + 1.0
+              ret_arr_2 = ret_arr_2.dropRight(1) :+ (ret_arr_2.last + 1.0)
+            }
+          }
+        }
+
+        index = index + 1
+      }
+
+      return Vectors.sparse(shingles.length, ret_arr, ret_arr_2)
+    }
+
+    def makeSparseVectors01(string: String, shingles: Array[String],
+                            shingle_length: Int): Vector = {
+      val shingles_in = makeShingles(string, shingle_length)
+      var ret_arr = Array[Int]()
+      var ret_arr_2 = Array[Double]()
+
+      var index = 0
+      for (shingle <- shingles) {
+        if (shingles_in contains shingle) {
+          ret_arr = ret_arr :+ index
+          ret_arr_2 = ret_arr_2 :+ 1.0
+        }
+
+        index = index + 1
+      }
+
+      return Vectors.sparse(shingles.length, ret_arr, ret_arr_2)
+    }
+
+    def applyKMeans(dataset: Dataset[Vector], is_cosine: Boolean): Array[Double] = {
+      var ret_arr = Array[Double]()
+
+      for (k <- 2 to 10) {
+        val model = new KMeans()
+          .setK(k)
+          .setMaxIterations(2)
+          .setDistanceMeasure(if (is_cosine) "cosine" else "euclidean")
+        val clusters = model.run(dataset.rdd)
+
+        val cost = clusters.computeCost(dataset.rdd)
+        ret_arr = ret_arr :+ cost
+      }
+
+      return ret_arr
+    }
+
+  //  def applyGaussian(dataset: Dataset[Vector]): Unit = {
+  //    for (k <- 2 to 10) {
+  //      println("Gaussian k = " + k)
+  //      val model = new GaussianMixture().setK(k).setMaxIterations(2)
+  //      val clusters = model.run(dataset.rdd)
+  //
+  //      for (i <- 0 until clusters.k) {
+  //        println("weight = " + clusters.weights(i) +
+  //                ", mu = " + clusters.gaussians(i).mu +
+  //                ", sigma = " + clusters.gaussians(i).sigma)
+  //      }
+  //    }
+  //  }
+
+    def applyBisectingKMeans(dataset: Dataset[Vector]): Array[Double] = {
+      var ret_arr = Array[Double]()
+
+      for (k <- 2 to 10) {
+        val model = new BisectingKMeans()
+          .setK(k)
+          .setMaxIterations(2)
+        val clusters = model.run(dataset.rdd)
+
+        val cost = clusters.computeCost(dataset.rdd)
+        ret_arr = ret_arr :+ cost
+      }
+
+      return ret_arr
+    }
 
     def makeShinglesTriplets(row: Row): List[String] = {
       makeShingles(row.getString(7), 3)
