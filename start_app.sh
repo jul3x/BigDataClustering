@@ -16,7 +16,7 @@ hdfs_ip=$(head -n 1 ~/master)
 /tmp_local/hadoop.jp420564/cluster/spark-2.4.5-bin-hadoop2.7/bin/spark-submit \
     --class BigDataClustering \
     --master yarn \
-    --deploy-mode client \
+    --deploy-mode cluster \
     --conf java.io.tmpdir=/tmp_local/hadoop.jp420564/spark_data \
     --conf spark.local.dir=/tmp_local/hadoop.jp420564/spark_data \
     --conf spark.yarn.appMasterEnv.JAVA_HOME=$JAVA_HOME_ \
