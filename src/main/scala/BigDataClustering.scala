@@ -144,14 +144,25 @@ object BigDataClustering {
       .load("hdfs://" + args(0) + ":9123/user/proteins_dataset/proteins_dataset_sample.csv")
       .na.drop().cache
 
+
+    def makeShinglesTriplets(row: Row): List[String] = {
+      makeShingles(row.getString(7), 3)
+    }
+
     val shingling_3 = spark.sparkContext
-      .broadcast(in_file.flatMap(row => makeShingles(row.getString(7), 3))
+      .broadcast(in_file.flatMap(makeShinglesTriplets)
         .distinct().collect())
 
-    val converted_to_sparse_vectors_3 = in_file
-      .map(row => makeSparseVectors01(row.getString(7), shingling_3.value, 3)).cache
-    val converted_to_sparse_vectors_3_count = in_file
-      .map(row => makeSparseVectorsCount(row.getString(7), shingling_3.value, 3)).cache
+    def makeSparseVectors3(row : Row): Vector = {
+      makeSparseVectors01(row.getString(7), shingling_3.value, 3)
+    }
+
+    def makeSparseVectorsCount3(row : Row): Vector = {
+      makeSparseVectorsCount(row.getString(7), shingling_3.value, 3)
+    }
+
+    val converted_to_sparse_vectors_3 = in_file.map(makeSparseVectors3).cache
+    val converted_to_sparse_vectors_3_count = in_file.map(makeSparseVectorsCount3).cache
 
     converted_to_sparse_vectors_3.collect().foreach(i => println(i))
 
