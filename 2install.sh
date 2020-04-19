@@ -10,15 +10,15 @@ cluster_dir_after="/tmp_local/hadoop.jp420564/cluster"
 
 mkdir $hdfs_dir
 mkdir $cluster_dir_after
-tar -xvf ~/download/openjdk-13.0.2_linux-x64_bin.tar.gz -C $cluster_dir_after
+tar -xvf ~/download/openjdk-8u41-b04-linux-x64-14_jan_2020.tar.gz -C $cluster_dir_after
 tar -xvf ~/download/hadoop-2.7.7.tar.gz -C $cluster_dir_after
 tar -xvf ~/download/spark-2.4.5-bin-hadoop2.7.tgz -C $cluster_dir_after
 
-export JAVA_HOME=$cluster_dir_after/jdk-13.0.2
+export JAVA_HOME=$cluster_dir_after/java-se-8u41-ri
 export HADOOP_INSTALL=$cluster_dir_after/hadoop-2.7.7
 export HADOOP_PREFIX=$HADOOP_INSTALL
 
-JAVA_HOME_=/tmp_local/hadoop.jp420564/cluster/jdk-13.0.2
+JAVA_HOME_=/tmp_local/hadoop.jp420564/cluster/java-se-8u41-ri
 HADOOP_INSTALL_=/tmp_local/hadoop.jp420564/cluster/hadoop-2.7.7
 
 export PATH=$JAVA_HOME_/bin:$HADOOP_INSTALL_/bin:$HADOOP_INSTALL_/sbin:$PATH
