@@ -16,9 +16,9 @@ Due to collisions, many of ports of HDFS setup had to be changed. For more infor
 
 ## Usage:
    ### Downloading
-   * Run `download.sh` script to download open-jdk, hadoop and spark.
+   * Run `1download.sh` script to download open-jdk, hadoop and spark.
    ### Installing hdfs
-   * Run `install.sh` and then `copy.sh` scripts to install hadoop and copy spark dirs on desired computers (computers IPs should be described in ~/slaves_with_master and ~/slaves_no_master files).
+   * Run `2install.sh` and then `3copy.sh` scripts to install hadoop and copy spark dirs on desired computers (computers IPs should be described in ~/slaves_with_master and ~/slaves_no_master files).
    ### Running hdfs
    * Run `start.sh` to run hdfs on a cluster (key-based authentication required).
    ### Uploading dataset
