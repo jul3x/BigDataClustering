@@ -139,7 +139,10 @@ object BigDataClustering {
       .option("sep", ",")
       .option("inferSchema", "true")
       .option("header", "true")
-      .load("hdfs://localhost:9123/protein_dataset/proteins_dataset_sample.csv")
+
+      // possibly needed to change
+
+      .load("hdfs://localhost:9123/user/proteins_dataset/proteins_dataset.csv")
       .na.drop().cache
 
     val shingling_3 = spark.sparkContext

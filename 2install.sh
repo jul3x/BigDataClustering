@@ -11,15 +11,15 @@ cluster_dir_after="/tmp_local/hadoop.jp420564/cluster"
 mkdir $hdfs_dir
 mkdir $cluster_dir_after
 tar -xvf ~/download/openjdk-13.0.2_linux-x64_bin.tar.gz -C $cluster_dir_after
-tar -xvf ~/download/hadoop-2.8.5.tar.gz -C $cluster_dir_after
+tar -xvf ~/download/hadoop-2.7.7.tar.gz -C $cluster_dir_after
 tar -xvf ~/download/spark-2.4.5-bin-hadoop2.7.tgz -C $cluster_dir_after
 
 export JAVA_HOME=$cluster_dir_after/jdk-13.0.2
-export HADOOP_INSTALL=$cluster_dir_after/hadoop-2.8.5
+export HADOOP_INSTALL=$cluster_dir_after/hadoop-2.7.7
 export HADOOP_PREFIX=$HADOOP_INSTALL
 
 JAVA_HOME_=/tmp_local/hadoop.jp420564/cluster/jdk-13.0.2
-HADOOP_INSTALL_=/tmp_local/hadoop.jp420564/cluster/hadoop-2.8.5
+HADOOP_INSTALL_=/tmp_local/hadoop.jp420564/cluster/hadoop-2.7.7
 
 export PATH=$JAVA_HOME_/bin:$HADOOP_INSTALL_/bin:$HADOOP_INSTALL_/sbin:$PATH
 
@@ -52,7 +52,7 @@ cat <<EOF > ${etc_hadoop}/hdfs-site.xml
 <configuration>
   <property>
     <name>dfs.replication</name>
-    <value>3</value>
+    <value>1</value>
   </property>
 
   <property>
@@ -78,6 +78,12 @@ cat <<EOF > ${etc_hadoop}/hdfs-site.xml
   </property>
 
   <property>
+    <name>dfs.namenode.checkpoint.dir</name>
+    <value>file://${hdfs_dir}/secondary_namenode</value>
+  </property>
+
+
+  <property>
     <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
     <value>false</value>
     <description>http://log.rowanto.com/why-datanode-is-denied-communication-with-namenode/</description>
@@ -93,8 +99,12 @@ cat <<EOF > ${etc_hadoop}/mapred-site.xml
         <value>yarn</value>
     </property>
     <property>
+        <name>mapreduce.cluster.local.dir</name>
+        <value>/tmp_local/hadoop.jp420564</value>
+    </property>
+    <property>
         <name>mapreduce.map.memory.mb</name>
-        <value>16384</value>
+        <value>256</value>
     </property>
     <property>
         <name>mapreduce.map.java.opts</name>
@@ -102,7 +112,7 @@ cat <<EOF > ${etc_hadoop}/mapred-site.xml
     </property>
     <property>
         <name>mapreduce.reduce.memory.mb</name>
-        <value>16384</value>
+        <value>256</value>
     </property>
     <property>
         <name>mapreduce.reduce.java.opts</name>
@@ -145,11 +155,15 @@ cat <<EOF > ${etc_hadoop}/yarn-site.xml
    </property>
     <property>
 	<name>yarn.nodemanager.resource.memory-mb</name>
-	<value>500</value>
+	<value>3072</value>
+   </property>
+   <property>
+	<name>yarn.scheduler.minimum-allocation-mb</name>
+        <value>256</value>
    </property>
    <property>
         <name>yarn.scheduler.maximum-allocation-mb</name>
-        <value>4384</value>
+        <value>4096</value>
         <description>Max RAM-per-container https://stackoverflow.com/questions/43826703/difference-between-yarn-scheduler-maximum-allocation-mb-and-yarn-nodemanager</description>
    </property>
 </configuration>

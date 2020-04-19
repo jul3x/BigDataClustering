@@ -8,16 +8,17 @@ rm -fr $hdfs_dir
 mkdir $hdfs_dir
 mkdir $hdfs_dir/namenode
 mkdir $hdfs_dir/datanode
+mkdir $hdfs_dir/secondary_namenode
 
 user=jp420564
 cd $home
 
 export JAVA_HOME=$cluster_dir/jdk-13.0.2
-export HADOOP_INSTALL=$cluster_dir/hadoop-2.8.5
+export HADOOP_INSTALL=$cluster_dir/hadoop-2.7.7
 export HADOOP_PREFIX=$HADOOP_INSTALL
 
 JAVA_HOME_=/tmp_local/hadoop.jp420564/cluster/jdk-13.0.2
-HADOOP_INSTALL_=/tmp_local/hadoop.jp420564/cluster/hadoop-2.8.5
+HADOOP_INSTALL_=/tmp_local/hadoop.jp420564/cluster/hadoop-2.7.7
 
 export PATH=$JAVA_HOME_/bin:$HADOOP_INSTALL_/bin:$HADOOP_INSTALL_/sbin:$PATH
 
@@ -29,8 +30,11 @@ do
   ssh -n $user@$name mkdir "/tmp_local/hadoop.jp420564"
   ssh -n $user@$name mkdir $hdfs_dir
   ssh -n $user@$name mkdir $hdfs_dir/datanode
+  ssh -n $user@$name mkdir $hdfs_dir/secondary_namenode
   rsync -zrvhae ssh $cluster_dir $user@$name:$hadoop_dir
   rsync -zrvhae ssh $hdfs_dir $user@$name:$hadoop_dir
+
+
 done < slaves_no_master
 
 while read name
