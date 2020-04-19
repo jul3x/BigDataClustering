@@ -70,7 +70,12 @@ cat <<EOF > ${etc_hadoop}/hdfs-site.xml
     <value>file://${hdfs_dir}/datanode</value>
     <description>Comma separated list of paths on the local filesystem of a DataNode where it should store its blocks.</description>
   </property>
- 
+
+  <property>
+    <name>dfs.datanode.max.locked.memory</name>
+    <value>64000</value>
+  </property>
+
   <property>
     <name>dfs.namenode.name.dir</name>
     <value>file://${hdfs_dir}/namenode</value>
