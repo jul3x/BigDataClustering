@@ -130,7 +130,6 @@ object BigDataClustering {
   def main(args: Array[String]) {
     val spark = SparkSession.builder
       .appName("Simple Application")
-   //   .config("spark.master", "local") // TODO NEEDED TO CHANGE!
       .getOrCreate()
 
     import spark.implicits._
@@ -142,7 +141,7 @@ object BigDataClustering {
 
       // possibly needed to change
 
-      .load("hdfs://localhost:9123/user/proteins_dataset/proteins_dataset_sample.csv")
+      .load("hdfs://" + args(0) + ":9123/user/proteins_dataset/proteins_dataset_sample.csv")
       .na.drop().cache
 
     val shingling_3 = spark.sparkContext
