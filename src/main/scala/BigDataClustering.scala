@@ -142,7 +142,7 @@ object BigDataClustering {
 
       // possibly needed to change
 
-      .load("hdfs://localhost:9123/user/proteins_dataset/proteins_dataset.csv")
+      .load("hdfs://localhost:9123/user/proteins_dataset/proteins_dataset_sample.csv")
       .na.drop().cache
 
     val shingling_3 = spark.sparkContext

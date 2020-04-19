@@ -9,6 +9,8 @@ mkdir $hdfs_dir
 mkdir $hdfs_dir/namenode
 mkdir $hdfs_dir/datanode
 mkdir $hdfs_dir/secondary_namenode
+mkdir $hdfs_dir/nm_data
+mkdir $hdfs_dir/spark_data
 
 user=jp420564
 cd $home
@@ -31,6 +33,8 @@ do
   ssh -n $user@$name mkdir $hdfs_dir
   ssh -n $user@$name mkdir $hdfs_dir/datanode
   ssh -n $user@$name mkdir $hdfs_dir/secondary_namenode
+  ssh -n $user@$name mkdir $hdfs_dir/spark_data
+  ssh -n $user@$name mkdir $hdfs_dir/nm_data
   rsync -zrvhae ssh $cluster_dir $user@$name:$hadoop_dir
   rsync -zrvhae ssh $hdfs_dir $user@$name:$hadoop_dir
 

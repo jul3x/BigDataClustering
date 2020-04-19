@@ -25,7 +25,6 @@ export PATH=$JAVA_HOME_/bin:$HADOOP_INSTALL_/bin:$HADOOP_INSTALL_/sbin:$PATH
 
 etc_hadoop=${HADOOP_INSTALL_}/etc/hadoop
 
-
 #hdfs_dir="${home}/hdfsdata"
 master=$(head -n 1 ${home}/master)
 cp $home/slaves_no_master $HADOOP_INSTALL/etc/hadoop/slaves
@@ -105,7 +104,7 @@ cat <<EOF > ${etc_hadoop}/mapred-site.xml
     </property>
     <property>
         <name>mapreduce.cluster.local.dir</name>
-        <value>/tmp_local/hadoop.jp420564</value>
+        <value>file://${hdfs_dir}</value>
     </property>
     <property>
         <name>mapreduce.map.memory.mb</name>
@@ -132,6 +131,10 @@ cat <<EOF > ${etc_hadoop}/yarn-site.xml
     <property>
         <name>yarn.nodemanager.aux-services</name>
         <value>mapreduce_shuffle</value>
+    </property>
+    <property>
+	<name>yarn.nodemanager.local-dirs</name>
+	<value>file://${hdfs_dir}/nm_data</value>
     </property>
     <property>
         <name>yarn.resourcemanager.address</name>
