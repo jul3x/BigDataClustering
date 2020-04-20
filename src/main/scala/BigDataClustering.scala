@@ -166,8 +166,6 @@ object BigDataClustering extends Serializable {
 
     def print_(i : Any): Unit = { println(i) }
 
-    converted_to_sparse_vectors_3.collect().foreach(print_)
-
     // K-means
     println("Computing k-means (euclidean) costs for 0/1 shingles...")
     val k_means_cost = applyKMeans(converted_to_sparse_vectors_3, is_cosine = false)
@@ -180,9 +178,9 @@ object BigDataClustering extends Serializable {
     count_k_means_cost.foreach(print_)
 
     // Bisecting K-means
-    println("Computing bisecting k-means (euclidean) costs for counted shingles...")
+    println("Computing bisecting k-means (euclidean) costs for 0/1 shingles...")
     val bkmeans_cost = applyBisectingKMeans(converted_to_sparse_vectors_3)
-    println("Bisecting k-means (euclidean) costs for counted shingles:")
+    println("Bisecting k-means (euclidean) costs for 0/1 shingles:")
     bkmeans_cost.foreach(print_)
 
     println("Computing bisecting k-means (euclidean) costs for counted shingles...")
@@ -191,12 +189,12 @@ object BigDataClustering extends Serializable {
     count_bkmeans_cost.foreach(print_)
 
     // K-means with cosine distance measure
-    println("Computing k-means (cosine) costs for counted shingles...")
+    println("Computing k-means (cosine) costs for 0/1 shingles...")
     val k_means_cosine_cost = applyKMeans(converted_to_sparse_vectors_3, is_cosine = true)
-    println("K-means (cosine) costs for counted shingles:")
+    println("K-means (cosine) costs for 0/1 shingles:")
     k_means_cosine_cost.foreach(print_)
 
-    println("Computing gaussian (cosine) costs for counted shingles...")
+    println("Computing k-means (cosine) costs for counted shingles...")
     val count_k_means_cosine_cost = applyKMeans(converted_to_sparse_vectors_3_count, is_cosine = true)
     println("K-means (cosine) costs for counted shingles:")
     count_k_means_cosine_cost.foreach(print_)
