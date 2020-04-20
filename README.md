@@ -23,10 +23,12 @@ Due to collisions, many of ports of HDFS setup had to be changed. For more infor
    * Run `start.sh` to run hdfs on a cluster (key-based authentication required).
    ### Uploading dataset
    * Run `upload_to_hdfs.sh` to upload dataset to hdfs.
-   ### Building application
-   * Run `build_app.sh` script to make *.jar file in target/scala-2.12 dir (bigdataclustering_2.12-0.1.jar)
    ### Running application
-   * Run `start_app.sh` script to run application on YARN with standard `proteins_dataset.csv`. Due to a very long runtime - dataset can be changed to prepared sample dataset `proteins_dataset_sample.csv` by changing filepath in `BigDataClustering.scala` file. Results are shown in results.txt file.
+   * First option:  
+      * Run `build_app.sh` script to make *.jar file in target/scala-2.12 dir (bigdataclustering_2.12-0.1.jar)
+      * Run `start_app.sh` script to run application on YARN with standard `proteins_dataset.csv`. Due to a very long runtime - dataset can be changed to prepared sample dataset `proteins_dataset_sample.csv` by changing filepath in `BigDataClustering.scala` file. Results are shown in results.txt file.
+   * Second option
+      * Run `start_app_shell.sh` to run application using spark-shell command and type `BigDataClustering.main(Array("IP of Master Node"))`.
    ### End of work
    * Run `stop.sh` to close the whole hdfs.
 

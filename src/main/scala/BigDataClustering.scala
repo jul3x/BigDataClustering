@@ -12,7 +12,7 @@ import org.apache.spark.mllib.clustering.BisectingKMeans
 import java.io._
 
 
-object BigDataClustering {
+object BigDataClustering extends Serializable {
 
   implicit val vectorEncoder: Encoder[Vector] = org.apache.spark.sql.Encoders.kryo[Vector]
 
