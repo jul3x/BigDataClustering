@@ -30,7 +30,7 @@ object BigDataClustering extends Serializable {
 
       // possibly needed to change
 
-      .load("hdfs://" + args(0) + ":9123/user/proteins_dataset/proteins_dataset_sample.csv")
+      .load("hdfs://" + args(0) + ":9123/user/proteins_dataset/proteins_dataset.csv")
       .na.drop().cache
 
     def makeShingles(string: String, shingle_length: Int): List[String] = {
