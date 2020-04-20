@@ -26,7 +26,7 @@ Due to collisions, many of ports of HDFS setup had to be changed. For more infor
    ### Running application
    * First option:  
       * Run `build_app.sh` script to make *.jar file in target/scala-2.12 dir (bigdataclustering_2.12-0.1.jar)
-      * Run `start_app.sh` script to run application on YARN with standard `proteins_dataset.csv`. Due to a very long runtime - dataset can be changed to prepared sample dataset `proteins_dataset_sample.csv` by changing filepath in `BigDataClustering.scala` file. Results are shown in results.txt file.
+      * Run `start_app.sh` script to run application on YARN with standard `proteins_dataset.csv`. Due to a very long runtime - dataset can be changed to prepared sample dataset `proteins_dataset_sample.csv` by changing filepath in `BigDataClustering.scala` file. Results are shown in stdout (possibly on workers logs).
    * Second option
       * Run `start_app_shell.sh` to run application using spark-shell command and type `BigDataClustering.main(Array("IP of Master Node"))`.
    ### End of work

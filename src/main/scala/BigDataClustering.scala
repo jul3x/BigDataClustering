@@ -208,27 +208,6 @@ object BigDataClustering extends Serializable {
 //    println("Computing gaussian (euclidean) parameters for counted shingles:")
 //    applyGaussian(converted_to_sparse_vectors_3_count)
 
-    val file = new File("result.txt")
-
-    val bw = new BufferedWriter(new FileWriter(file))
-
-    def write_(i : Any): Unit = { bw.write(i.toString + "\n") }
-
-    bw.write("K-means euclidean costs (from 2 to 10 clusters):\n")
-    k_means_cost.foreach(write_)
-    bw.write("\nK-means euclidean costs (from 2 to 10 clusters) for counted shingles:\n")
-    count_k_means_cost.foreach(write_)
-    bw.write("\nBisecting K-means euclidean costs (from 2 to 10 clusters):\n")
-    bkmeans_cost.foreach(write_)
-    bw.write("\nBisecting K-means euclidean costs (from 2 to 10 clusters) for counted shingles:\n")
-    count_bkmeans_cost.foreach(write_)
-    bw.write("\nK-means cosine costs (from 2 to 10 clusters):\n")
-    k_means_cosine_cost.foreach(write_)
-    bw.write("\nK-means cosine costs (from 2 to 10 clusters) for counted shingles:\n")
-    count_k_means_cosine_cost.foreach(write_)
-
-    bw.close()
-
     spark.stop()
   }
 }
